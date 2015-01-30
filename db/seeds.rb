@@ -1,2 +1,2 @@
 
-Overall.create(:total => 1499685629)
+Overall.create(:total => 1499980347)
