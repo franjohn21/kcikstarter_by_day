@@ -9,6 +9,8 @@
 <body>
 
 <%= yield %>
-
+<%= content_tag :div, class: "temp_information", data: {days: @days} do %>
+<% end %>
 </body>
+
 </html>

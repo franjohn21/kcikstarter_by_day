@@ -1,0 +1,138 @@
+// This is a manifest file that'll be compiled into application.js, which will include all the files
+// listed below.
+//
+// Any JavaScript/Coffee file within this directory, lib/assets/javascripts, vendor/assets/javascripts,
+// or vendor/assets/javascripts of plugins, if any, can be referenced here using a relative path.
+//
+// It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
+// compiled file.
+//
+// Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
+// about supported directives.
+//
+//= require jquery
+//= require jquery_ujs
+//= require turbolinks
+//= require d3
+//= require_tree .
+
+$(function(){
+	var day_dict = {
+		1: "Monday",
+		2: "Tuesday",
+		3: "Wednesday",
+		4: "Thursday", 
+		5: "Friday", 
+		6: "Saturday",
+		7: "Sunday",
+	}
+
+	var month_dict = {
+	  	1: "January", 
+	  	2: "February",
+	  	3: "March",
+	  	4: "April",
+	  	5: "May",
+	  	6: "June",
+	  	7: "July",
+	  	8: "August", 
+	  	9: "September",
+	  	10: "October",
+	  	11: "November",
+	  	12: "December"
+	}
+
+	var days = $('.temp_information').data('days');
+
+    var margin = {top: 20, right: 30, bottom: 30, left: 60},
+        width = 600 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
+
+    var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
+
+    var y = d3.scale.linear()
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+	function display_weeks(){
+
+	    var chart = d3.select(".week_chart")
+	        .attr("width", width + margin.left + margin.right)
+	        .attr("height", height + margin.top + margin.bottom)
+	      .append("g")
+	        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	    var nest = d3.nest()
+	    	.key(function(d){return d.weekday}).sortKeys(d3.ascending)
+	    	.rollup(function(weekday){ return (d3.sum(weekday, function(d){ return (d.total); })/weekday.length) })
+	    	.entries(days);
+
+	      x.domain(nest.map(function(d){return day_dict[d.key]; }));
+	      y.domain([0, d3.max(nest, function(d) {return d.values; })]);
+
+	      chart.append("g")
+	          .attr("class", "x axis")
+	          .attr("transform", "translate(0," + height + ")")
+	          .call(xAxis);
+
+	      chart.append("g")
+	          .attr("class", "y axis")
+	          .call(yAxis);
+
+	      chart.selectAll(".bar")
+	          .data(nest)
+	        .enter().append("rect")
+	          .attr("class", "bar")
+	          .attr("x", function(d) {return x(d.key); })
+	          .attr("y", function(d) {return y(d.values); })
+	          .attr("height", function(d) { return height - y(d.values); })
+	          .attr("width", x.rangeBand());
+		}
+
+	function display_months(){
+
+	    var chart = d3.select(".month_chart")
+	        .attr("width", width + margin.left + margin.right)
+	        .attr("height", height + margin.top + margin.bottom)
+	      .append("g")
+	        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	    var nest = d3.nest()
+	    	.key(function(d){return d.month}).sortKeys(d3.ascending)
+	    	.rollup(function(month){ return (d3.sum(month, function(d){ return (d.total); })/month.length) })
+	    	.entries(days);
+
+	      x.domain(nest.map(function(d){return month_dict[d.key]; }));
+	      y.domain([0, d3.max(nest, function(d) {return d.values; })]);
+
+	      chart.append("g")
+	          .attr("class", "x axis")
+	          .attr("transform", "translate(0," + height + ")")
+	          .call(xAxis);
+
+	      chart.append("g")
+	          .attr("class", "y axis")
+	          .call(yAxis);
+
+	      chart.selectAll(".bar")
+	          .data(nest)
+	        .enter().append("rect")
+	          .attr("class", "bar")
+	          .attr("x", function(d) {return x(d.key); })
+	          .attr("y", function(d) {return y(d.values); })
+	          .attr("height", function(d) { return height - y(d.values); })
+	          .attr("width", x.rangeBand());
+		}
+
+	display_weeks();
+	display_months();
+
+})
